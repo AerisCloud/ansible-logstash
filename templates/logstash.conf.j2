@@ -1,0 +1,137 @@
+input {
+  gelf {
+    type => "gelf"
+    host => "0.0.0.0" # string (optional), default: "0.0.0.0"
+    port => 12201
+    codec => "json"
+    remap => false
+  }
+
+  syslog {
+    type => "syslog"
+    host => "0.0.0.0" # string (optional), default: "0.0.0.0"
+    port => 514
+  }
+
+{% if collectd_forwarder is defined and collectd_forward_to_logstash %}
+  udp {
+      port => 25827
+      codec => collectd { }
+  }
+
+{% elif collectd_forwarder is defined and collectd_forwarder != inventory_hostname %}
+  udp {
+      port => 25826
+      codec => collectd { }
+  }
+  {% endif %}
+
+}
+
+filter {
+  if [type] == "gelf" {
+    mutate {
+      replace => ["message", "[%{facility}:%{level}] %{short_message}"]
+    }
+    mutate {
+      add_field => [ "logsource", "%{host}" ]
+    }
+  }
+  if [lineno] {
+    mutate {
+      replace => ["message", "%{message}, filename:%{filename}, line:%{lineno}"]
+    }
+  }
+  if [full_message] != [short_message] {
+    mutate {
+      replace => ["message", "%{message}, fullMessage:%{full_message}"]
+    }
+  }
+  if [error_stack_0] {
+    mutate {
+      replace => ["message", "%{message}, version:%{version}, stack:%{error_stack_1}, %{error_stack_2}, %{error_stack_3}, %{error_stack_4}"]
+    }
+  }
+  if [actorId] {
+    mutate {
+      replace => ["message", "%{message}, actorId:%{actorId}"]
+    }
+  }
+  if [clientInfo_userAgent] {
+    mutate {
+      replace => ["message", "%{message}, userAgent:%{clientInfo_userAgent}"]
+    }
+  }
+  if [clientInfo_clientConfig_screen_0] {
+    mutate {
+      replace => ["message", "%{message}, screen:%{clientInfo_clientConfig_screen_0}x%{clientInfo_clientConfig_screen_1}"]
+    }
+  }
+  if [clientInfo_clientConfig_language] {
+    mutate {
+      replace => ["message", "%{message}, language:%{clientInfo_clientConfig_language}"]
+    }
+  }
+}
+
+output {
+
+  {% if use_loggly %}
+
+  loggly {
+    key => "{{ loggly_key }}"
+    proto => "https"
+  }
+  {% endif %}
+
+  {% if use_papertrail %}
+
+  syslog {
+    facility => "local0"
+    severity => "informational"
+    sourcehost => "%{logsource}"
+    host => "{{ papertrail_host|default('logs.papertrailapp.com') }}"
+    port => {{ papertrail_port }}
+    protocol => "{{ papertrail_protocol|default('udp') }}"
+    appname => "%{program}"
+  }
+  {% endif %}
+
+  {% if use_logentries %}
+  # Use Plain TCP/UDP, not token-based logging
+  # https://logentries.com/doc/rsyslog/
+  # Could not find how to configure the backend panel, so
+  # This remains untested
+  syslog {
+    facility => "local0"
+  	severity => "informational"
+    host => "api.logentries.com"
+    port => {{ logentries_port }}
+    protocol => "{{ logentries_protocol|default('udp') }}"
+  }
+  {% endif %}
+
+  {% if use_graylog %}
+
+  gelf {
+    facility => "{{ graylog_facility }}"
+    host => "{{ graylog_host }}"
+    port => {{ graylog_port|default('12201') }}
+  }
+  {% endif %}
+
+  {% if use_elasticsearch is defined and use_elasticsearch %}
+
+  elasticsearch {
+    node_name => "{{ inventory_hostname }}"
+    bind_port => "{{ logstash_elasticsearch_tcp_port }}"
+    bind_host => "{{ ansible_ssh_host }}"
+
+    {% if logstash_elasticsearch_cluster is defined %}cluster => "{{ logstash_elasticsearch_cluster }}"
+  	{% endif %}
+
+  	{% if logstash_elasticsearch_host is defined %}host => "{{ logstash_elasticsearch_host }}"
+  	{% endif %}
+  }
+  {% endif %}
+}

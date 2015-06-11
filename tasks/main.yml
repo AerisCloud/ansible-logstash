@@ -1,0 +1,36 @@
+#####################
+# CentOS
+- include: centos.yml
+  when: ansible_distribution == 'CentOS'
+  tags:
+    - logstash
+
+#####################
+# Debian
+- include: debian.yml
+  when: ansible_distribution == 'Debian'
+  tags:
+    - logstash
+
+- name: "Install Logstash Plugins"
+  shell: |
+    executable=/bin/bash
+    chdir=/opt/logstash
+
+    sudo bin/plugin install {{ item }}
+  with_items:
+    - logstash-input-gelf
+    - logstash-input-syslog
+    - logstash-codec-collectd
+  tags:
+    - logstash
+
+- name: "Make sure logstash is running"
+  service: >
+    name=logstash
+    state=running
+    enabled=yes
+    runlevel=5
+  tags:
+    - logstash
+    - service

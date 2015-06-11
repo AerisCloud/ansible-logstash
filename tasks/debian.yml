@@ -1,0 +1,85 @@
+- name: "Install logstash dependencies"
+  apt: >
+    name={{ item }}
+    state=present
+  with_items:
+    - openjdk-7-jre-headless
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Ensure correct Java version (1.7)"
+  alternatives: name=java path=/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Download Logstash"
+  shell: |
+    executable=/bin/bash
+    chdir=/tmp
+    creates=/tmp/logstash_{{ logstash_version }}-1_all.deb
+    
+    curl -sS -o /tmp/logstash_{{ logstash_version }}-1_all.deb http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb
+    curl -sS -o logstash_{{ logstash_version }}-1_all.deb.sha1.txt http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb.sha1.txt
+
+    # Ansible get_url only supports sha256.
+    # Elastic provides only a sha1 checksum.
+    # Issue for sha1 support: https://github.com/ansible/ansible/issues/10216
+    sha1_binary="$(sha1sum logstash_{{ logstash_version }}-1_all.deb | cut -d' ' -f1 | cut -f1)"
+    sha1_file="$(cat logstash_{{ logstash_version }}-1_all.deb.sha1.txt | cut -d' ' -f1 | cut -f1)"
+
+    if
+        [ "$sha1_binary" == "$sha1_file" ]
+    then
+       echo "SHA1 checksum succeeded."
+    else
+       echo "SHA1 checksum failed."
+       exit 1
+    fi
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Install logstash"
+  apt: >
+    deb=/tmp/logstash_{{ logstash_version }}-1_all.deb
+    state=present
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Upload logstash.conf"
+  template: >
+    src=logstash.conf.j2
+    dest=/etc/logstash/conf.d/logstash.conf
+    owner=root
+    group=root
+    mode=0600
+  tags:
+    - logstash
+    - files
+    - configs
+  notify:
+    - Restart logstash
+
+- name: "Run Logstash as root to be able to listen on port 514"
+  lineinfile: >
+    dest=/etc/default/logstash
+    state=present
+    regexp="LS_USER"
+    line="LS_USER=root"
+  tags:
+    - logstash
+    - files
+
+- name: "Make sure logstash is running"
+  service: >
+    name=logstash
+    pattern=/opt/logstash/vendor/jruby/lib/jruby.jar
+    state=running
+    enabled=yes
+    runlevel=5
+  tags:
+    - logstash
+    - service
