@@ -22,6 +22,7 @@
     - logstash-input-gelf
     - logstash-input-syslog
     - logstash-codec-collectd
+    - logstash-output-syslog
   tags:
     - logstash
 
