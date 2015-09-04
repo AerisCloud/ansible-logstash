@@ -2,3 +2,7 @@ logstash_elasticsearch_tcp_port: 19350
 logstash_elasticsearch_http_port: 9200
 collectd_forward_to_logstash: false
 use_elasticsearch: false
+use_loggly: false
+use_papertrail: false
+use_logentries: false
+use_graylog: false

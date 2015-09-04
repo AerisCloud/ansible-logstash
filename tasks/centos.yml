@@ -10,13 +10,20 @@
     - pkgs
 
 - name: "Download Logstash"
+  get_url: >
+    url={{ item.link }}
+    dest={{ item.dest }}
+  with_items:
+    - { link: 'http://download.elastic.co/logstash/logstash/packages/centos/logstash-{{ logstash_version }}-1.noarch.rpm', dest: '/tmp/logstash-{{ logstash_version }}-1.noarch.rpm' }
+    - { link: 'http://download.elastic.co/logstash/logstash/packages/centos/logstash-{{ logstash_version }}-1.noarch.rpm.sha1.txt', dest: '/tmp/logstash-{{ logstash_version }}-1.noarch.rpm.sha1.txt' }
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Verify Logstash checksum"
   shell: |
     executable=/bin/bash
     chdir=/tmp
-    creates=/tmp/logstash-{{ logstash_version }}-1.noarch.rpm
-    
-    curl -sS -o /tmp/logstash-{{ logstash_version }}-1.noarch.rpm http://download.elastic.co/logstash/logstash/packages/centos/logstash-{{ logstash_version }}-1.noarch.rpm
-    curl -sS -o /tmp/logstash-{{ logstash_version }}-1.noarch.rpm.sha1.txt http://download.elastic.co/logstash/logstash/packages/centos/logstash-{{ logstash_version }}-1.noarch.rpm.sha1.txt
 
     # Ansible get_url only supports sha256.
     # Elastic provides only a sha1 checksum.
