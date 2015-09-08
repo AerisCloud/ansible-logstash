@@ -22,6 +22,8 @@ logstash-somedc-prod
 logstash1.somedc.prod         ansible_ssh_host=10.0.1.111
 
 [logstash-somedc-prod:vars]
+# Specify the port used by logstash to receive syslog data
+logstash_syslog_port = 514
 
 # Support collectd codec
 # https://www.elastic.co/guide/en/logstash/current/plugins-codecs-collectd.html
