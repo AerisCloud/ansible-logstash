@@ -1,9 +1,11 @@
 - name: "Install logstash dependencies"
   apt: >
     name={{ item }}
+    update_cache=yes
     state=present
   with_items:
     - openjdk-7-jre-headless
+    - logrotate
   tags:
     - logstash
     - pkgs
@@ -15,13 +17,20 @@
     - pkgs
 
 - name: "Download Logstash"
+  get_url: >
+    url={{ item.link }}
+    dest={{ item.dest }}
+  with_items:
+    - { link: "http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb", dest: "/tmp/logstash_{{ logstash_version }}-1_all.deb" }
+    - { link: "http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb.sha1.txt", dest: "/tmp/logstash_{{ logstash_version }}-1_all.deb.sha1.txt" }
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Verify Logstash checksum"
   shell: |
     executable=/bin/bash
     chdir=/tmp
-    creates=/tmp/logstash_{{ logstash_version }}-1_all.deb
-    
-    curl -sS -o /tmp/logstash_{{ logstash_version }}-1_all.deb http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb
-    curl -sS -o logstash_{{ logstash_version }}-1_all.deb.sha1.txt http://download.elastic.co/logstash/logstash/packages/debian/logstash_{{ logstash_version }}-1_all.deb.sha1.txt
 
     # Ansible get_url only supports sha256.
     # Elastic provides only a sha1 checksum.
