@@ -17,12 +17,31 @@
     executable=/bin/bash
     chdir=/opt/logstash
 
-    sudo bin/plugin install {{ item }}
-  with_items:
-    - logstash-input-gelf
-    - logstash-input-syslog
-    - logstash-codec-collectd
-    - logstash-output-syslog
+    sudo bin/plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
+  with_items: logstash_plugins_1
+  when: logstash_version | version_compare('1.5.6', '<=')
+  tags:
+    - logstash
+
+- name: "Install Logstash Plugins"
+  shell: |
+    executable=/bin/bash
+    chdir=/opt/logstash
+
+    sudo bin/plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
+  with_items: logstash_plugins_2
+  when: logstash_version | version_compare('2.0.0', '>=')
+  tags:
+    - logstash
+
+# Add fix for logstash-output-syslog. See:
+# https://github.com/logstash-plugins/logstash-output-syslog/commit/f5a4be2a56f184b134c01fb1d0e0c9a09be11aa8#diff-3ccf50b4bfe2babe74a94ff1b3a791a6
+- name: "Apply fix for the logstash-output-syslog plugin"
+  get_url: >
+    url="https://raw.githubusercontent.com/logstash-plugins/logstash-output-syslog/f5a4be2a56f184b134c01fb1d0e0c9a09be11aa8/lib/logstash/outputs/syslog.rb"
+    dest="/opt/logstash/vendor/bundle/jruby/1.9/gems/logstash-output-syslog-0.1.4/lib/logstash/outputs/syslog.rb"
+    force=yes
+  when: logstash_version | version_compare('1.5.6', '<=')
   tags:
     - logstash
 

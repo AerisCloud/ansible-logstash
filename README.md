@@ -54,6 +54,35 @@ logstash_elasticsearch_cluster=elasticsearch1-somedc-prod
 logstash_elasticsearch_host=node1.elasticsearch1.somedc.prod
 ```
 
+#### group_vars
+
+Add more [logstash plugins](https://github.com/logstash-plugins) by simply adding plugins to your [group file](http://docs.ansible.com/ansible/intro_inventory.html#splitting-out-host-and-group-specific-data).
+
+When `logstash_version` set to 1.5.x, for example `1.5.4`, set the plugin and versions. Examples:
+
+```
+# Plugins that are compatible with 1.5.x
+logstash_version: 1.5.4
+logstash_plugins_1:
+    - { plugin_name: "logstash-input-gelf", plugin_version: "0.1.5" }
+    - { plugin_name: "logstash-input-syslog", plugin_version: "0.1.6" }
+    - { plugin_name: "logstash-codec-collectd", plugin_version: "0.1.10" }
+    - { plugin_name: "logstash-output-syslog", plugin_version: "0.1.4"}
+```
+
+
+When `logstash_version` set to 2.x.x, for example `2.1.1`, set the plugin and versions. Examples:
+
+```
+# Plugins that are compatible with 2.1.x
+logstash_version: 2.1.1
+logstash_plugins_2:
+    - { plugin_name: "logstash-input-gelf", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-input-syslog", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-codec-collectd", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-output-syslog", plugin_version: "2.1.0"}
+```
+
 ### Integration with external services
 
 When provisioning with this role, you can also add

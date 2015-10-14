@@ -1,1 +1,16 @@
 logstash_version: 1.5.4
+
+# Plugins that are compatible with 1.5.x
+logstash_plugins_1:
+    - { plugin_name: "logstash-input-gelf", plugin_version: "0.1.5" }
+    - { plugin_name: "logstash-input-syslog", plugin_version: "0.1.6" }
+    - { plugin_name: "logstash-codec-collectd", plugin_version: "0.1.10" }
+    - { plugin_name: "logstash-output-syslog", plugin_version: "0.1.4"}
+
+
+# Plugins that are compatible with 2.1.x
+logstash_plugins_2:
+    - { plugin_name: "logstash-input-gelf", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-input-syslog", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-codec-collectd", plugin_version: "2.0.2" }
+    - { plugin_name: "logstash-output-syslog", plugin_version: "2.1.0"}
