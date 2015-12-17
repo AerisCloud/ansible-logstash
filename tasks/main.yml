@@ -19,7 +19,7 @@
 
     sudo bin/plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
   with_items: logstash_plugins_1
-  when: logstash_version | version_compare('1.5.6', '<=')
+  when: logstash_version | version_compare('2.0.0', '<')
   tags:
     - logstash
 
@@ -41,7 +41,7 @@
     url="https://raw.githubusercontent.com/logstash-plugins/logstash-output-syslog/f5a4be2a56f184b134c01fb1d0e0c9a09be11aa8/lib/logstash/outputs/syslog.rb"
     dest="/opt/logstash/vendor/bundle/jruby/1.9/gems/logstash-output-syslog-0.1.4/lib/logstash/outputs/syslog.rb"
     force=yes
-  when: logstash_version | version_compare('1.5.6', '<=')
+  when: logstash_version | version_compare('2.0.0', '<')
   tags:
     - logstash
 
