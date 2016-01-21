@@ -37,21 +37,25 @@ use_elasticsearch = false
 # auto-discovery might not work (e.g. in environments where
 # multicast is not working). Your ElasticSearch cluster
 # configuration should tell you this (by default, auto-discovery
-# is on; the inventory should tell you if it is turned off)
+# is on in versions 1.5 and earlier and off in version 2.x and up;
+# the inventory should tell you if it is turned off)
 #
 # If the cluster is auto-discovery capable, set:
 #
 # logstash_elasticsearch_cluster
 #
-# if it is not, set:
+# If it is not, set:
 #
 # logstash_elasticsearch_host
 #
 # Don't worry, in both cases full cluster discovery will be made,
-# and logstash should end using all nodes
+# and logstash should end using all nodes or the nodes specified.
 #
 logstash_elasticsearch_cluster=elasticsearch1-somedc-prod
-logstash_elasticsearch_host=node1.elasticsearch1.somedc.prod
+
+logstash_elasticsearch_host='["node1.elasticsearch1.somedc.prod"]'
+# or
+logstash_elasticsearch_host='["node1.elasticsearch1.somedc.prod","node2.elasticsearch1.somedc.prod"]'
 ```
 
 #### group_vars

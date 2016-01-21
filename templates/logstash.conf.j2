@@ -120,18 +120,45 @@ output {
   }
   {% endif %}
 
+
   {% if use_elasticsearch is defined and use_elasticsearch %}
 
+    {% if logstash_version | version_compare('2.0.0', '>=') and logstash_elasticsearch_cluster is defined %}
+
+  elasticsearch_java {
+    network_host => "{{ ansible_ssh_host }}"
+    node_name => "{{ ansible_nodename }}"
+  }
+
+    {% else %}
+
   elasticsearch {
+      {% if logstash_version | version_compare('2.0.0', '<') %}
+
     node_name => "{{ inventory_hostname }}"
     bind_port => "{{ logstash_elasticsearch_tcp_port }}"
     bind_host => "{{ ansible_ssh_host }}"
 
-    {% if logstash_elasticsearch_cluster is defined %}cluster => "{{ logstash_elasticsearch_cluster }}"
-  	{% endif %}
+        {% if logstash_elasticsearch_cluster is defined %}
 
-  	{% if logstash_elasticsearch_host is defined %}host => "{{ logstash_elasticsearch_host }}"
-  	{% endif %}
+    cluster => "{{ logstash_elasticsearch_cluster }}"
+        {% endif %}
+
+        {% if logstash_elasticsearch_host is defined %}
+
+    host => [ {% for host in logstash_elasticsearch_host|from_json %}"{{ host }}:{{ logstash_elasticsearch_http_port }}"{% if not loop.last %},{% endif %}{% endfor %} ]
+        {% endif %}
+
+      {% else %}
+
+        {% if logstash_elasticsearch_host is defined %}
+
+    hosts => [ {% for host in logstash_elasticsearch_host|from_json %}"{{ host }}:{{ logstash_elasticsearch_http_port }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    	{% endif %}
+      {% endif %}
+
   }
-  {% endif %}
+    {% endif %}
+
 }
+  {% endif %}
