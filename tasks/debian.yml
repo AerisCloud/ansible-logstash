@@ -6,12 +6,37 @@
   with_items:
     - openjdk-7-jre-headless
     - logrotate
+  when: ansible_distribution_release == "wheezy"
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Install logstash dependencies"
+  apt: >
+    name={{ item }}
+    update_cache=yes
+    state=present
+    default_release={{ ansible_distribution_release }}-backports
+  with_items:
+    - openjdk-8-jre-headless
+    - logrotate
+  when: ansible_distribution_release == "jessie"
   tags:
     - logstash
     - pkgs
 
 - name: "Ensure correct Java version (1.7)"
-  alternatives: name=java path=/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+  shell:
+    update-java-alternatives -s java-1.7.0-openjdk-amd64 --jre-headless
+  when: ansible_distribution_release == "wheezy"
+  tags:
+    - logstash
+    - pkgs
+
+- name: "Ensure correct Java version (1.8)"
+  shell:
+    update-java-alternatives -s java-1.8.0-openjdk-amd64 --jre-headless
+  when: ansible_distribution_release == "jessie"
   tags:
     - logstash
     - pkgs
@@ -58,7 +83,7 @@
     - logstash
     - pkgs
 
-- name: "Upload logstash.conf"
+- name: "Install /etc/logstash/conf.d/logstash.conf"
   template: >
     src=logstash.conf.j2
     dest=/etc/logstash/conf.d/logstash.conf

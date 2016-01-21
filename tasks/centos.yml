@@ -4,7 +4,16 @@
     state=present
     enablerepo=epel
   with_items:
-    - java-1.7.0-openjdk
+    - java-1.8.0-openjdk
+  tags:
+    - logstash
+    - pkgs
+
+
+- name: "Ensure correct Java version (1.8)"
+  shell:
+    /usr/sbin/alternatives -s java-1.8.0-openjdk-amd64 --jre-headless
+  when: ansible_distribution_release == "jessie"
   tags:
     - logstash
     - pkgs
