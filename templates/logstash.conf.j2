@@ -76,7 +76,7 @@ filter {
 
 output {
 
-  {% if use_loggly %}
+  {% if use_loggly|bool %}
 
   loggly {
     key => "{{ loggly_key }}"
@@ -84,7 +84,7 @@ output {
   }
   {% endif %}
 
-  {% if use_papertrail %}
+  {% if use_papertrail|bool %}
 
   syslog {
     facility => "local0"
@@ -97,7 +97,7 @@ output {
   }
   {% endif %}
 
-  {% if use_logentries %}
+  {% if use_logentries|bool %}
   # Use Plain TCP/UDP, not token-based logging
   # https://logentries.com/doc/rsyslog/
   # Could not find how to configure the backend panel, so
@@ -111,7 +111,7 @@ output {
   }
   {% endif %}
 
-  {% if use_graylog %}
+  {% if use_graylog|bool %}
 
   gelf {
     facility => "{{ graylog_facility }}"
@@ -120,7 +120,7 @@ output {
   }
   {% endif %}
 
-  {% if use_elasticsearch is defined and use_elasticsearch %}
+  {% if use_elasticsearch is defined and use_elasticsearch|bool %}
 
   elasticsearch {
     node_name => "{{ inventory_hostname }}"
