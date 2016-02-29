@@ -22,4 +22,6 @@ dependencies:
         - epel
       centos7:
         - epel
+      jessie:
+        - backports
   - role: aeriscloud.yum
