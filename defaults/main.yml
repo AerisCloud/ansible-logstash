@@ -7,3 +7,5 @@ use_loggly: false
 use_papertrail: false
 use_logentries: false
 use_graylog: false
+
+logstash_version: 2.1.1
