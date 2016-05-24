@@ -62,7 +62,9 @@ logstash_elasticsearch_host='["node1.elasticsearch1.somedc.prod","node2.elastics
 
 Add more [logstash plugins](https://github.com/logstash-plugins) by simply adding plugins to your [group file](http://docs.ansible.com/ansible/intro_inventory.html#splitting-out-host-and-group-specific-data).
 
-When `logstash_version` set to 1.5.x, for example `1.5.4`, set the plugin and versions. Examples:
+For Logstash 1.x, set the `logstash_plugins` to the Logstash version you want installed.
+List the plugins and plugins' version with `logstash_plugins_1`.
+See the following below as an example. Below are also the default plugins that will be installed for 1.x.
 
 ```
 # Plugins that are compatible with 1.5.x
@@ -74,8 +76,10 @@ logstash_plugins_1:
     - { plugin_name: "logstash-output-syslog", plugin_version: "0.1.4"}
 ```
 
-
+For Logstash 2.x, set the `logstash_plugins` to the Logstash version
 When `logstash_version` set to 2.x.x, for example `2.1.1`, set the plugin and versions. Examples:
+By default, `logstash-output-syslog` will be installed by default for Logstash 2.x.
+Below is an example to install extra addons for Logstash 2.x.
 
 ```
 # Plugins that are compatible with 2.1.x
