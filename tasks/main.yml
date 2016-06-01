@@ -55,7 +55,7 @@
     creates=/opt/logstash/vendor/bundle/jruby/1.9/gems/{{ item.plugin_name }}-{{ item.plugin_version }}
     chdir=/opt/logstash
 
-    sudo bin/logstash-plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
+    sudo LS_HEAP_SIZE=256m bin/logstash-plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
   with_items: logstash_plugins_2
   when: logstash_version | version_compare('2.3.0', '>=') and item.plugin_name is defined
   tags:
@@ -67,7 +67,7 @@
     creates=/opt/logstash/vendor/bundle/jruby/1.9/gems/{{ item.plugin_name }}-{{ item.plugin_version }}
     chdir=/opt/logstash
 
-    sudo bin/logstash-plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
+    sudo LS_HEAP_SIZE=256m bin/logstash-plugin install --version {{ item.plugin_version }} {{ item.plugin_name }}
   with_items:
     - { plugin_name: "logstash-output-elasticsearch_java", plugin_version: "2.1.3" }
   when: logstash_elasticsearch_cluster is defined and logstash_version | version_compare('2.3.0', '>=')
