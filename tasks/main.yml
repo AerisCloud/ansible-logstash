@@ -61,6 +61,19 @@
   tags:
     - logstash
 
+# Apply fix to logstash-output-syslog to allow ssl-tcp without needing to setup a ssl server with a custom key+cert,
+# because we just want to be able to send ssl-tcp.
+- name: "Apply patch to logstash-output-syslog-2.1.4 plugin to use ssl-tcp (logstash >=2.3.0)"
+  get_url: |
+    dest=/opt/logstash/vendor/bundle/jruby/1.9/gems/logstash-output-syslog-2.1.4/lib/logstash/outputs/syslog.rb
+    url=https://raw.githubusercontent.com/tokyowizard/logstash-output-syslog/send-ssl-tcp/lib/logstash/outputs/syslog.rb
+    mode=644
+    force=yes
+  with_items: logstash_plugins_2
+  when: logstash_version | version_compare('2.3.0', '>=') and item.plugin_name == "logstash-output-syslog" and item.plugin_version =="2.1.4"
+  tags:
+    - logstash
+
 - name: "Install Logstash Plugins (logstash >= 2.3.0)"
   shell: |
     executable=/bin/bash

@@ -94,6 +94,7 @@ output {
     port => {{ papertrail_port }}
     protocol => "{{ papertrail_protocol|default('udp') }}"
     appname => "%{program}"
+
   }
   {% endif %}
 
