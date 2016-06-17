@@ -97,12 +97,13 @@
   notify:
     - Restart logstash
 
-- name: "Run Logstash as root to be able to listen on port 514"
+- name: "Set Logstash to run as root to be able to listen on port 514 (or any port lower than 1024)"
   lineinfile: >
     dest=/etc/default/logstash
     state=present
     regexp="LS_USER"
     line="LS_USER=root"
+  when: logstash_syslog_port <= 1024
   tags:
     - logstash
     - files
