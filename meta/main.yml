@@ -16,7 +16,7 @@ galaxy_info:
   categories:
     - monitoring
 dependencies:
-  - role: aeriscloud.repos
+  - role: AerisCloud.repos
     repositories:
       centos6:
         - epel
@@ -24,4 +24,4 @@ dependencies:
         - epel
       jessie:
         - backports
-  - role: aeriscloud.yum
+  - role: AerisCloud.yum
